@@ -4,25 +4,29 @@ using UnityEngine;
 
 public class SnakeController : MonoBehaviour {
 
-    private int speed = 30;
+    private int speed = 40;
     private int frames = 0;
     private bool canTurn = true;
+    List<GameObject> body = new List<GameObject>();
 
 	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-
-	}
+	void Start ()
+    {
+        body.Add(this.gameObject);
+        GameObject[] startBody = GameObject.FindGameObjectsWithTag("Body");
+        foreach (GameObject bodyPart in startBody)
+        {
+            body.Add(bodyPart);
+        }
+        setUpSnake();
+    }
 
     void FixedUpdate()
     {
         frames++;
         if (frames % speed == 0)
         {
+            moveSnake(body.Count - 1);
             transform.position += transform.forward;
             frames = 0;
             canTurn = true;
@@ -30,10 +34,31 @@ public class SnakeController : MonoBehaviour {
 
 
         float input = Input.GetAxisRaw("Horizontal");
-        if (input != 0)
+        if (canTurn == true && input != 0)
         {
             transform.localEulerAngles += new Vector3(0, input * 90, 0);
             canTurn = false;
+        }
+    }
+
+    private void moveSnake(int bodyNum)
+    {
+        if (bodyNum == 0)
+        {
+            return;
+        }
+        else
+        {
+            body[bodyNum].transform.position = body[bodyNum - 1].transform.position;
+            moveSnake(bodyNum - 1);
+        }
+    }
+
+    private void setUpSnake()
+    {
+        for (int i = 1; i < body.Count; i++)
+        {
+            body[i].transform.position = body[i - 1].transform.position - body[i - 1].transform.forward;
         }
     }
 }
