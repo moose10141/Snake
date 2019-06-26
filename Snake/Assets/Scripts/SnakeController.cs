@@ -38,21 +38,15 @@ public class SnakeController : MonoBehaviour {
     {
         int inputLR = Input.GetAxisRaw("Horizontal") >= 0 ? (int) Input.GetAxisRaw("Horizontal") : -1;
         int inputUD = Input.GetAxisRaw("Vertical") >= 0 ? (int) Input.GetAxisRaw("Vertical") : -1;
-        Debug.Log(Input.GetAxisRaw("Horizontal") + "     " + Input.GetAxisRaw("Vertical"));
         if (canTurn == true && (inputLR != 0 || inputUD != 0))
         {
             int currentRotation = Mathf.RoundToInt(transform.rotation.eulerAngles.y);
             // rotation equals 90 or 180 -> dirFactor = -1 otherwise rotation equals 0 or 270 -> dirFactor = 1
             int dirFactor = currentRotation == 90 || currentRotation == 180 ? -1 : 1;
 
-            if (currentRotation % 180 == 0) // rotation equals 0 or 180
-            {
-                transform.eulerAngles += new Vector3(0, dirFactor * inputLR * 90, 0);
-            }
-            else // rotation equals 90 or 270
-            {
-                transform.eulerAngles += new Vector3(0, dirFactor * inputUD * 90, 0);
-            }
+            // rotation equals 0 or 180 -> use LR input otherwise rotation equals 90 or 270 -> use UD input
+            int input = currentRotation % 180 == 0 ? inputLR : inputUD;
+            transform.eulerAngles += new Vector3(0, dirFactor * input * 90, 0);
             canTurn = false;
         }
     }
