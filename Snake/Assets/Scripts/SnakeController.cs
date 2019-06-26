@@ -29,16 +29,36 @@ public class SnakeController : MonoBehaviour {
         if (frames % speed == 0)
         {
             moveSnake(body.Count - 1);
-            transform.position += transform.forward;
             frames = 0;
-            canTurn = true;
         }
+        rotateSnake();
+    }
 
-
-        float input = Input.GetAxisRaw("Horizontal");
-        if (canTurn == true && input != 0)
+    private void rotateSnake()
+    {
+        float inputLR = Input.GetAxisRaw("Horizontal");
+        float inputUD = Input.GetAxisRaw("Vertical");
+        if (canTurn == true && (inputLR != 0 || inputUD != 0))
         {
-            transform.eulerAngles += new Vector3(0, input * 90, 0);
+            float currentRotation = Mathf.RoundToInt(transform.rotation.eulerAngles.y);
+            int dirFactor = 1;
+            if (currentRotation == 90 || currentRotation == 180) // rotation equals 90 or 180
+            {
+                dirFactor = -1;
+            }
+            else // rotation equals 0 or 270
+            {
+                dirFactor = 1;
+            }
+
+            if (currentRotation % 180 == 0) // rotation equals 0 or 180
+            {
+                transform.eulerAngles += new Vector3(0, dirFactor * inputLR * 90, 0);
+            }
+            else // rotation equals 90 or 270
+            {
+                transform.eulerAngles += new Vector3(0, dirFactor * inputUD * 90, 0);
+            }
             canTurn = false;
         }
     }
@@ -47,6 +67,8 @@ public class SnakeController : MonoBehaviour {
     {
         if (bodyNum == 0)
         {
+            transform.position += transform.forward;
+            canTurn = true;
             return;
         }
         else
@@ -93,5 +115,17 @@ public class SnakeController : MonoBehaviour {
             
             other.transform.position = newPos;
         } 
+        else if (other.gameObject.tag == "Body")
+        {
+            // Call Function in game controller similar to what is in here
+            for (int i = 1; i < body.Count; i++)
+            {
+                GameObject.Destroy(body[i]);
+            }
+            body.RemoveRange(1, body.Count - 1);
+            body[0].transform.position = Vector3.zero + new Vector3(0, 0.5f, 0);
+            body[0].transform.rotation = new Quaternion(0, 0, 0, 0);
+            setUpSnake(startingLength);
+        }
     }
 }
