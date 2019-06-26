@@ -14,12 +14,6 @@ public class SnakeController : MonoBehaviour {
 	// Use this for initialization
 	void Start ()
     {
-        body.Add(this.gameObject);
-        GameObject[] startBody = GameObject.FindGameObjectsWithTag("Body");
-        foreach (GameObject bodyPart in startBody)
-        {
-            body.Add(bodyPart);
-        }
         setUpSnake(startingLength);
     }
 
@@ -68,6 +62,16 @@ public class SnakeController : MonoBehaviour {
 
     private void setUpSnake(int startingLength)
     {
+        body.Clear();
+        body.Add(this.gameObject);
+        body[0].transform.position = new Vector3(0, transform.position.y, 0);
+        body[0].transform.rotation = new Quaternion(0, 0, 0, 0);
+        GameObject[] startBody = GameObject.FindGameObjectsWithTag("Body");
+        foreach (GameObject bodyPart in startBody)
+        {
+            body.Add(bodyPart);
+        }
+
         for (int i = 0; i < startingLength; i++)
         {
             body.Add(Instantiate(bodyPrefab, body[i].transform.position - body[i].transform.forward, body[i].transform.rotation));
@@ -114,10 +118,8 @@ public class SnakeController : MonoBehaviour {
             for (int i = 1; i < body.Count; i++)
             {
                 GameObject.Destroy(body[i]);
+                body[i].SetActive(false);
             }
-            body.RemoveRange(1, body.Count - 1);
-            body[0].transform.position = Vector3.zero + new Vector3(0, 0.5f, 0);
-            body[0].transform.rotation = new Quaternion(0, 0, 0, 0);
             setUpSnake(startingLength);
         }
     }
