@@ -34,3 +34,8 @@ sysinfo.txt
 # Builds
 *.apk
 *.unitypackage
+
+
+
+
+Build Windows/Snake_Data/output_log.txt
