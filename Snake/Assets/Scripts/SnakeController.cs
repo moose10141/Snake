@@ -36,20 +36,14 @@ public class SnakeController : MonoBehaviour {
 
     private void rotateSnake()
     {
-        float inputLR = Input.GetAxisRaw("Horizontal");
-        float inputUD = Input.GetAxisRaw("Vertical");
+        int inputLR = Input.GetAxisRaw("Horizontal") >= 0 ? (int) Input.GetAxisRaw("Horizontal") : -1;
+        int inputUD = Input.GetAxisRaw("Vertical") >= 0 ? (int) Input.GetAxisRaw("Vertical") : -1;
+        Debug.Log(Input.GetAxisRaw("Horizontal") + "     " + Input.GetAxisRaw("Vertical"));
         if (canTurn == true && (inputLR != 0 || inputUD != 0))
         {
-            float currentRotation = Mathf.RoundToInt(transform.rotation.eulerAngles.y);
-            int dirFactor = 1;
-            if (currentRotation == 90 || currentRotation == 180) // rotation equals 90 or 180
-            {
-                dirFactor = -1;
-            }
-            else // rotation equals 0 or 270
-            {
-                dirFactor = 1;
-            }
+            int currentRotation = Mathf.RoundToInt(transform.rotation.eulerAngles.y);
+            // rotation equals 90 or 180 -> dirFactor = -1 otherwise rotation equals 0 or 270 -> dirFactor = 1
+            int dirFactor = currentRotation == 90 || currentRotation == 180 ? -1 : 1;
 
             if (currentRotation % 180 == 0) // rotation equals 0 or 180
             {
@@ -96,24 +90,29 @@ public class SnakeController : MonoBehaviour {
         body.Add(Instantiate(bodyPrefab, body[body.Count - 1].transform.position, body[body.Count - 1].transform.rotation));
     }
 
+    private void eatFood(GameObject food)
+    {
+        extendBody();
+        List<Vector3> takenPositions = new List<Vector3>();
+        foreach (GameObject bodyPart in body)
+        {
+            Vector3 takenPos = new Vector3(Mathf.Round(bodyPart.transform.position.x), food.transform.position.y, Mathf.Round(bodyPart.transform.position.z));
+            takenPositions.Add(takenPos);
+        }
+        Vector3 newPos;
+        do
+        {
+            newPos = new Vector3(Mathf.Round(Random.Range(-8, 8)), food.transform.position.y, Mathf.Round(Random.Range(-4, 4)));
+        }
+        while (takenPositions.Contains(newPos));
+        food.transform.position = newPos;
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.tag == "Food")
         {
-            extendBody();
-            List<Vector3> takenPositions = new List<Vector3>();
-            foreach (GameObject bodyPart in body)
-            {
-                takenPositions.Add(bodyPart.transform.position);
-            }
-            Vector3 newPos;
-            do
-            {
-                newPos = new Vector3(Mathf.Round(Random.Range(-8, 8)), other.transform.position.y, Mathf.Round(Random.Range(-4, 4)));
-            }
-            while (takenPositions.Contains(newPos));
-            
-            other.transform.position = newPos;
+            eatFood(other.gameObject);
         } 
         else if (other.gameObject.tag == "Body")
         {
