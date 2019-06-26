@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class SnakeController : MonoBehaviour {
 
-    private int speed = 40;
+    private int speed = 10;
     private int frames = 0;
     public int startingLength = 3;
     private bool canTurn = true;
